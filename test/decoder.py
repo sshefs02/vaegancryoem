@@ -3,7 +3,7 @@ Unit Testing for Decoder System of a VAE-GAN.
 """
 import unittest
 import torch
-from vaegancryoem.script.decoder import Decoder
+from vaegancryoem.script.models.decoder import Decoder
 
 
 class DecoderTest(unittest.TestCase):

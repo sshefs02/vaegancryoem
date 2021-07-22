@@ -5,9 +5,9 @@ Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Im
 import torch.nn as nn
 from torch.autograd import Variable
 
-from vaegancryoem.script.encoder import Encoder
-from vaegancryoem.script.decoder import Decoder
-from vaegancryoem.script.discriminator import Discriminator
+from vaegancryoem.script.models.encoder import Encoder
+from vaegancryoem.script.models.decoder import Decoder
+from vaegancryoem.script.models.discriminator import Discriminator
 
 
 class VAEGAN(nn.Module):
@@ -52,7 +52,7 @@ class VAEGAN(nn.Module):
         )
 
         # Define the Discriminator
-        self.Discriminator = Discriminator(
+        self.discriminator = Discriminator(
             input_image_width=input_image_width,
             input_channels=input_channels
         )
@@ -78,10 +78,10 @@ class VAEGAN(nn.Module):
         reconstructed_x = self.decoder(z)
 
         # GAN: Discriminator Pass
-        real_discriminator_preds = self.Discriminator(x)
-        fake_discriminator_preds = self.Discriminator(reconstructed_x)
+        real_discriminator_preds = self.discriminator(x)
+        fake_discriminator_preds = self.discriminator(reconstructed_x)
 
-        return reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances
+        return reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances, z
 
     @staticmethod
     def reparameterize(mus, log_variances):

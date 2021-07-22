@@ -3,7 +3,7 @@ Unit Testing for Discriminator System of a VAE-GAN.
 """
 import unittest
 import torch
-from vaegancryoem.script.discriminator import Discriminator
+from vaegancryoem.script.models.discriminator import Discriminator
 
 
 class DiscriminatorTest(unittest.TestCase):

@@ -56,6 +56,7 @@ class CryoEMDataset(Dataset):
 
 def get_data_loader(file_path,
                     input_image_width=40,
+                    input_channels=1,
                     batch_size=4,
                     shuffle=False,
                     num_workers=None):
@@ -63,7 +64,12 @@ def get_data_loader(file_path,
     Get the Data Loader for the Cryo EM Dataset.
     """
 
-    dataset = CryoEMDataset(file_path, input_image_width)
+    dataset = CryoEMDataset(
+        file_path,
+        input_image_width,
+        input_channels
+    )
+
     data_loader = DataLoader(
         dataset=dataset,
         batch_size=batch_size,

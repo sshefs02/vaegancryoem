@@ -3,7 +3,7 @@ This file defines the Discriminator System of the network architecture of the pr
 Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Images with Variational Autoencoders and Generative Adversarial Networks
 """
 import torch.nn as nn
-import torch.nn.functional as F
+import torch
 
 
 class Discriminator(nn.Module):
@@ -56,7 +56,7 @@ class Discriminator(nn.Module):
         output = self.conv(x)
         output = output.view(len(output), -1)
         output = self.fc(output)
-        sigmoid_output = F.sigmoid(output)
+        sigmoid_output = torch.sigmoid(output)
         return sigmoid_output
 
     @staticmethod

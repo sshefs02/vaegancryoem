@@ -5,7 +5,7 @@ Unit Testing for Encoder System of a VAE-GAN.
 import unittest
 import torch
 import torch.nn as nn
-from vaegancryoem.script.encoder import Encoder
+from vaegancryoem.script.models.encoder import Encoder
 
 
 class EncoderTest(unittest.TestCase):
