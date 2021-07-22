@@ -34,8 +34,8 @@ def training_loop(data_loader,
                 -0.5 * torch.sum(-log_variances.detach().exp() - torch.pow(mus.detach(), 2) + log_variances.detach() + 1, 1)
             )  # KL Divergence. # Params: Encoder, Propagate: Encoder
 
-            z1, z2, z3 = z[0], z[1], z[2]
-            cone_loss = z1**2 + z2**2 - z3**2
+            z1, z2, z3 = z[:, 0], z[:, 1], z[:, 2]
+            cone_loss = torch.sum(z1**2 + z2**2 - z3**2)
 
             gan_loss_original = torch.sum(
                 -torch.log(real_discriminator_preds + 1e-3)
