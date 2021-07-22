@@ -75,11 +75,11 @@ class VAEGAN(nn.Module):
         # VAE: Encoder - Decoder Pass
         mus, log_variances = self.encoder(x)
         z = self.reparameterize(mus, log_variances)
-        reconstructed_x = self.decoder(z)
+        reconstructed_x = self.decoder(z.detach())
 
         # GAN: Discriminator Pass
         real_discriminator_preds = self.discriminator(x)
-        fake_discriminator_preds = self.discriminator(reconstructed_x)
+        fake_discriminator_preds = self.discriminator(reconstructed_x.detach())
 
         return reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances, z
 

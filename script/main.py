@@ -111,9 +111,9 @@ optimizer_discriminator, scheduler_decoder = get_optimiser(
 
 # TODO: Pick from Arguments.
 num_epochs = 4
-lambda_regularisation_loss = 0.01
+lambda_regularisation_loss = 0.000000000001
 lambda_cone_loss = 1
-lambda_gan_loss = 0.01
+lambda_gan_loss = 0.00001
 optimizer_list = [optimizer_encoder, optimizer_decoder, optimizer_discriminator]
 
 training_loop(

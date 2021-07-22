@@ -31,11 +31,11 @@ def training_loop(data_loader,
             )  # Params: Encoder+Decoder, Propagate: Encoder+Decoder
 
             regularisation_loss = torch.sum(
-                -0.5 * torch.sum(-log_variances.detach().exp() - torch.pow(mus.detach(), 2) + log_variances.detach() + 1, 1)
+                -0.5 * torch.sum(-log_variances.exp() - torch.pow(mus, 2) + log_variances + 1, 1)
             )  # KL Divergence. # Params: Encoder, Propagate: Encoder
 
             z1, z2, z3 = z[:, 0], z[:, 1], z[:, 2]
-            cone_loss = torch.sum(z1**2 + z2**2 - z3**2)
+            cone_loss = -torch.sum(z1**2 + z2**2 - z3**2)
 
             gan_loss_original = torch.sum(
                 -torch.log(real_discriminator_preds + 1e-3)
@@ -47,6 +47,15 @@ def training_loop(data_loader,
 
             gan_loss = gan_loss_original + gan_loss_predicted  # Params: Encoder+Decoder+Discriminator, Propagate: Decoder+Discriminator
 
+            print(
+                f"reconstruction_loss={reconstruction_loss.item()}, "
+                f"regularisation_loss={regularisation_loss.item():.4f}, "
+                f"cone_loss={cone_loss.item():.4f}, "
+                f"gan_loss_original={gan_loss_original.item():.4f}, "
+                f"gan_loss_predicted={gan_loss_predicted.item():.4f}, "
+                f"gan_loss={gan_loss.item():.4f}"
+            )
+
             encoder_loss = reconstruction_loss + lambda_regularisation_loss * regularisation_loss + lambda_cone_loss * cone_loss
             decoder_loss = reconstruction_loss + lambda_gan_loss * gan_loss_predicted
             discriminator_loss = gan_loss
@@ -55,15 +64,15 @@ def training_loop(data_loader,
             model.zero_grad()
 
             # Encoder Backward Pass
-            encoder_loss.backward(retain_graph=True)  # TODO: Want to compute only gradients of encoder params.
+            encoder_loss.backward(retain_graph=True)
             optimizer_encoder.step()
 
             # Decoder Backward Pass
-            decoder_loss.backward(retain_graph=True)  # TODO: Want to compute gradients of only decoder params.
+            decoder_loss.backward(retain_graph=True)
             optimizer_decoder.step()
 
             # # Discriminator Backward Pass
-            discriminator_loss.backward(retain_graph=True)  # TODO: Want to compute gradients of only decoder params.
+            discriminator_loss.backward()
             optimizer_discriminator.step()
 
             # Print every 10th epoch
