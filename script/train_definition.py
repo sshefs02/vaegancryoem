@@ -2,6 +2,8 @@
 This file contains the training loop for the proposed VAE-GAN model in the paper:
 Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Images with Variational Autoencoders and Generative Adversarial Networks
 """
+# import copy
+import matplotlib.pyplot as plt
 import torch
 
 
@@ -25,36 +27,20 @@ def training_loop(data_loader,
             # Forward Pass
             reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances, z = model(x)
 
-            # Loss Computation
-            reconstruction_loss = torch.sum(
-                0.5 * (x.view(len(x), -1) - reconstructed_x.view(len(reconstructed_x), -1)) ** 2
-            )  # Params: Encoder+Decoder, Propagate: Encoder+Decoder
-
-            regularisation_loss = torch.sum(
-                -0.5 * torch.sum(-log_variances.exp() - torch.pow(mus, 2) + log_variances + 1, 1)
-            )  # KL Divergence. # Params: Encoder, Propagate: Encoder
-
-            z1, z2, z3 = z[:, 0], z[:, 1], z[:, 2]
-            cone_loss = -torch.sum(z1**2 + z2**2 - z3**2)
-
-            gan_loss_original = torch.sum(
-                -torch.log(real_discriminator_preds + 1e-3)
+            # Loss
+            reconstruction_loss, regularisation_loss, cone_loss, gan_loss_original, gan_loss_predicted, gan_loss = model.get_loss(
+                x, reconstructed_x, mus, log_variances, z, real_discriminator_preds, fake_discriminator_preds
             )
 
-            gan_loss_predicted = torch.sum(
-                -torch.log(1 - fake_discriminator_preds + 1e-3)
-            )
-
-            gan_loss = gan_loss_original + gan_loss_predicted  # Params: Encoder+Decoder+Discriminator, Propagate: Decoder+Discriminator
-
-            print(
-                f"reconstruction_loss={reconstruction_loss.item()}, "
-                f"regularisation_loss={regularisation_loss.item():.4f}, "
-                f"cone_loss={cone_loss.item():.4f}, "
-                f"gan_loss_original={gan_loss_original.item():.4f}, "
-                f"gan_loss_predicted={gan_loss_predicted.item():.4f}, "
-                f"gan_loss={gan_loss.item():.4f}"
-            )
+            # print(
+            #     f"reconstruction_loss={reconstruction_loss.item()}\n"
+            #     f"regularisation_loss={regularisation_loss.item():.4f}\n"
+            #     f"cone_loss={cone_loss.item():.4f}\n"
+            #     f"gan_loss_original={gan_loss_original.item():.4f}\n"
+            #     f"gan_loss_predicted={gan_loss_predicted.item():.4f}\n"
+            #     f"gan_loss={gan_loss.item():.4f}"
+            # )
+            # print()
 
             encoder_loss = reconstruction_loss + lambda_regularisation_loss * regularisation_loss + lambda_cone_loss * cone_loss
             decoder_loss = reconstruction_loss + lambda_gan_loss * gan_loss_predicted
@@ -63,23 +49,60 @@ def training_loop(data_loader,
             # Clear Gradients
             model.zero_grad()
 
-            # Encoder Backward Pass
+            # ------- Encoder Backward Pass --------
+
+            # old_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # old_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # old_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
             encoder_loss.backward(retain_graph=True)
             optimizer_encoder.step()
 
-            # Decoder Backward Pass
+            # new_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # new_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # new_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
+            # ------- Decoder Backward Pass --------
+
+            # print()
+
+            # old_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # old_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # old_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
             decoder_loss.backward(retain_graph=True)
             optimizer_decoder.step()
 
-            # # Discriminator Backward Pass
+            # new_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # new_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # new_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
+            # ------- Discriminator Backward Pass --------
+
+            # print()
+
+            # old_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # old_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # old_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
             discriminator_loss.backward()
             optimizer_discriminator.step()
 
-            # Print every 10th epoch
-            if (epoch + 1) % 2 == 0:
+            # new_param_list_encoder = copy.deepcopy(list(model.encoder.parameters()))
+            # new_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
+            # new_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
+
+            # Show Images
+            # plot_original_and_reconstructed_image(x, reconstructed_x)
+
+            # Print every 2nd epoch
+            if (epoch + 1) % 1 == 0:
                 print(
                     f"epoch={epoch + 1}/{num_epochs}, "
                     f"encoder_loss={encoder_loss.item():.4f}, "
                     f"decoder_loss={decoder_loss.item():.4f}, "
                     f"discriminator_loss={discriminator_loss.item():.4f}"
                 )
+                print()
+
+

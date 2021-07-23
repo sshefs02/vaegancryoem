@@ -37,10 +37,10 @@ if torch.cuda.is_available():
 # ---------------------------------------------------------------------
 
 # TODO: Pick from Arguments.
-file_path = "/Users/shesriva/Desktop/RA/vaegancryoem/cryoem/temp_data/temp_train.npy"
+file_path = "/Users/shesriva/Desktop/RA/vaegancryoem/cryoem/total_processed_data/train.npy"
 input_image_width = 40
 input_channels = 1
-batch_size = 4
+batch_size = 64
 shuffle = False
 num_workers = 0
 
@@ -111,9 +111,9 @@ optimizer_discriminator, scheduler_decoder = get_optimiser(
 
 # TODO: Pick from Arguments.
 num_epochs = 4
-lambda_regularisation_loss = 0.000000000001
+lambda_regularisation_loss = 0.1
 lambda_cone_loss = 1
-lambda_gan_loss = 0.00001
+lambda_gan_loss = 0.1
 optimizer_list = [optimizer_encoder, optimizer_decoder, optimizer_discriminator]
 
 training_loop(
@@ -126,3 +126,7 @@ training_loop(
     lambda_cone_loss=lambda_cone_loss,
     lambda_gan_loss=lambda_gan_loss
 )
+
+# TODO: Save the trained model.
+model_save_path = 'model_state_dictionary'
+torch.save(model.state_dict(), model_save_path)

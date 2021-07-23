@@ -3,8 +3,9 @@ This file defines the VAE-GAN System of the network architecture of the proposed
 Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Images with Variational Autoencoders and Generative Adversarial Networks
 """
 import torch.nn as nn
+import torch
 from torch.autograd import Variable
-
+import numpy as np
 from vaegancryoem.script.models.encoder import Encoder
 from vaegancryoem.script.models.decoder import Decoder
 from vaegancryoem.script.models.discriminator import Discriminator
@@ -57,6 +58,19 @@ class VAEGAN(nn.Module):
             input_channels=input_channels
         )
 
+        self.init_parameters()
+
+    def init_parameters(self):
+        # just explore the network, find every weight and bias matrix and fill it
+        for m in self.modules():
+            if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
+                if hasattr(m, "weight") and m.weight is not None and m.weight.requires_grad:
+                    scale = 1.0/np.sqrt(np.prod(m.weight.shape[1:]))
+                    scale /= np.sqrt(3)
+                    nn.init.uniform(m.weight,-scale,scale)
+                if hasattr(m, "bias") and m.bias is not None and m.bias.requires_grad:
+                    nn.init.constant(m.bias, 0.0)
+
     def forward(self, x):
         """
         Forward Pass for the Entire VAE-GAN System of Variational Auto-Encoder cum Generative Adversarial Network.
@@ -99,3 +113,32 @@ class VAEGAN(nn.Module):
         logvar = log_variances.mul(0.5).exp_()
         eps = Variable(logvar.data.new(logvar.size()).normal_())
         return eps.mul(logvar).add_(mus)
+
+    @staticmethod
+    def get_loss(x, reconstructed_x, mus, log_variances, z, real_discriminator_preds, fake_discriminator_preds):
+
+        # Binary Cross Entropy between input image and reconstructed image.
+        reconstruction_loss = torch.mean(
+            0.5 * (x.view(len(x), -1) - reconstructed_x.view(len(reconstructed_x), -1)) ** 2
+        )  # Params: Encoder+Decoder, Propagate: Encoder+Decoder
+
+        # KL Divergence.
+        regularisation_loss = torch.mean(
+            -0.5 * torch.sum(-log_variances.exp() - torch.pow(mus, 2) + log_variances + 1, 1), dim=0
+        )  # Params: Encoder, Propagate: Encoder
+
+        # Cone Loss
+        z1, z2, z3 = z[:, 0], z[:, 1], z[:, 2]
+        cone_loss = torch.sum(z1 ** 2 + z2 ** 2 - z3 ** 2)**2
+
+        gan_loss_original = torch.sum(
+            -torch.log(real_discriminator_preds + 1e-3)
+        )
+
+        gan_loss_predicted = torch.sum(
+            -torch.log(1 - fake_discriminator_preds + 1e-3)
+        )
+
+        gan_loss = gan_loss_original + gan_loss_predicted  # Params: Encoder+Decoder+Discriminator, Propagate: Decoder+Discriminator
+
+        return reconstruction_loss, regularisation_loss, cone_loss, gan_loss_original, gan_loss_predicted, gan_loss
