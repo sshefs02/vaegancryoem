@@ -61,6 +61,10 @@ class VAEGAN(nn.Module):
         self.init_parameters()
 
     def init_parameters(self):
+        """
+        Parameter Initialisation for the Entire VAE-GAN System of Variational Auto-Encoder cum Generative Adversarial Network.
+        """
+
         # just explore the network, find every weight and bias matrix and fill it
         for m in self.modules():
             if isinstance(m, (nn.Conv2d, nn.ConvTranspose2d, nn.Linear)):
