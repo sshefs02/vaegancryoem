@@ -108,11 +108,13 @@ class Decoder(nn.Module):
                                       bias=False)
             bn = nn.BatchNorm2d(int(channels/2),
                                 momentum=momentum)
+            r = nn.ReLU(True)
 
             image_width = int((image_width - 1) * stride - 2 * padding + (kernel_size - 1) + output_padding + 1)
             channels = int(channels/2)
             layers.append(conv)
             layers.append(bn)
+            layers.append(r)
 
         # MAKE SURE: Be careful to choose positive padding.
         # This will depend on the number of conv layers

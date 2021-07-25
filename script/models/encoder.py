@@ -119,10 +119,12 @@ class Encoder(nn.Module):
                          bias=False)
         bn = nn.BatchNorm2d(num_features=output_channels,
                             momentum=momentum)
+        r = nn.ReLU(True)
 
         image_width = int((image_width - kernel_size + 2 * padding) / stride + 1)
         layers.append(conv)
         layers.append(bn)
+        layers.append(r)
 
         # Add the next (num_conv_layers-1) convolution layers
         for i in range(1, num_conv_layers):
@@ -134,10 +136,13 @@ class Encoder(nn.Module):
                              bias=False)
             bn = nn.BatchNorm2d(num_features=output_channels * 2,
                                 momentum=momentum)
+            r = nn.ReLU(True)
+
             output_channels *= 2
             image_width = int((image_width - kernel_size + 2 * padding) / stride + 1)
             layers.append(conv)
             layers.append(bn)
+            layers.append(r)
 
         final_output_feature_dims = int(image_width * image_width * output_channels)  # Final number of features.
         return layers, final_output_feature_dims

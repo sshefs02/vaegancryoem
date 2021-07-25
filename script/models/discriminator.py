@@ -38,7 +38,7 @@ class Discriminator(nn.Module):
         self.fc = nn.Sequential(
             nn.Linear(in_features=final_output_feature_dims, out_features=512, bias=False),
             nn.BatchNorm1d(num_features=512, momentum=0.9),
-            nn.ReLU(inplace=True),
+            nn.LeakyReLU(inplace=True),
             nn.Linear(in_features=512, out_features=1),
         )
 
@@ -90,11 +90,14 @@ class Discriminator(nn.Module):
                              bias=False)
             bn = nn.BatchNorm2d(num_features=output_channels,
                                 momentum=momentum)
+            lr = nn.LeakyReLU(True)
+
             input_channels = output_channels
             output_channels *= 2
             input_image_width = int((input_image_width - kernel_size + 2 * padding) / stride + 1)
             layers.append(conv)
             layers.append(bn)
+            layers.append(lr)
 
         final_output_feature_dims = int(input_image_width * input_image_width * int(output_channels/2))  # Final number of features.
         return layers, final_output_feature_dims
