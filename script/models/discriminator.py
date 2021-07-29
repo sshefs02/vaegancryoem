@@ -26,7 +26,7 @@ class Discriminator(nn.Module):
         super(Discriminator, self).__init__()
 
         output_channels = 64
-        num_conv_layers = 4
+        num_conv_layers = 2
         layers, final_output_feature_dims = self.get_layers(
             input_image_width,
             input_channels,

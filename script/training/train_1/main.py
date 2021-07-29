@@ -4,7 +4,7 @@ Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Im
 """
 from torch.optim import Adam
 from torch.optim.lr_scheduler import MultiStepLR
-from vaegancryoem.script.train_definition import training_loop
+from vaegancryoem.script.training.train_1.train_definition import training_loop
 from vaegancryoem.script.data.data_loader import get_data_loader
 from vaegancryoem.script.models.vaegan import VAEGAN
 import torch
@@ -37,7 +37,7 @@ if torch.cuda.is_available():
 # ---------------------------------------------------------------------
 
 # TODO: Pick from Arguments.
-file_path = "/Users/shesriva/Desktop/RA/vaegancryoem/cryoem/total_processed_data/train.npy"
+file_path = "/vaegancryoem/cryoem/total_processed_data/train.npy"
 input_image_width = 40
 input_channels = 1
 batch_size = 64
@@ -57,7 +57,7 @@ data_loader = get_data_loader(
 # ---------------------------------------------------------------------
 
 # TODO: Pick from Arguments.
-latent_space_dimensions = 3
+latent_space_dimensions = 12
 
 model = VAEGAN(
     input_channels,
@@ -69,9 +69,9 @@ model = VAEGAN(
 # ---------------------------------------------------------------------
 
 # TODO: Pick from Arguments.
-encoder_optimiser_learning_rate = 0.01
-decoder_optimiser_learning_rate = 0.01
-discriminator_optimiser_learning_rate = 0.01
+encoder_optimiser_learning_rate = 0.00000000001
+decoder_optimiser_learning_rate = 0.001
+discriminator_optimiser_learning_rate = 0.0001
 
 
 def get_optimiser(parameters, learning_rate, beta1=0.9, beta2=0.999):

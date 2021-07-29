@@ -63,7 +63,7 @@ class Decoder(nn.Module):
         Forward Pass for the Decoder System of Variational Auto-Encoder.
 
         Parameters:
-            x (tensor): Training Images
+            z (tensor): Latent Space Representation
 
         Returns:
             Generated/Reconstructed output from the forward pass of the decoder

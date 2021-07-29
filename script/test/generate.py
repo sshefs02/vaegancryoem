@@ -13,7 +13,7 @@ from vaegancryoem.script.models.vaegan import VAEGAN
 
 input_channels = 1
 input_image_width = 40
-latent_space_dimensions = 3
+latent_space_dimensions = 12
 
 model = VAEGAN(
     input_channels,
@@ -27,7 +27,7 @@ model.load_state_dict(torch.load(PATH))
 # Load Data
 # ---------------------------------------------------------------------
 
-file_path = "/Users/shesriva/Desktop/RA/vaegancryoem/cryoem/total_processed_data/test.npy"
+file_path = "/Users/shesriva/Desktop/RA/vaegancryoem/cryoem/total_processed_data/train.npy"
 input_image_width = 40
 input_channels = 1
 batch_size = 4

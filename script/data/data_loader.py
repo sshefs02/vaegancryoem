@@ -36,6 +36,8 @@ class CryoEMDataset(Dataset):
         self.input_channels = input_channels
         self.transform = transform
 
+        # TODO: Normalise data.
+
     def __getitem__(self, index):
         """
         Return one image after the specified transformations.

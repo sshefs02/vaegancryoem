@@ -3,8 +3,8 @@ This file contains the training loop for the proposed VAE-GAN model in the paper
 Estimation of Orientation and Camera Parameters from Cryo-Electron Microscopy Images with Variational Autoencoders and Generative Adversarial Networks
 """
 # import copy
-import matplotlib.pyplot as plt
-import torch
+# import matplotlib.pyplot as plt
+# import torch
 
 
 def training_loop(data_loader,
@@ -25,10 +25,10 @@ def training_loop(data_loader,
             x = current_batch.to(device)
 
             # Forward Pass
-            reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances, z = model(x)
+            reconstructed_x, real_discriminator_preds, fake_discriminator_preds, mus, log_variances, z = model(x, "GENERATOR")
 
             # Loss
-            reconstruction_loss, regularisation_loss, cone_loss, gan_loss_original, gan_loss_predicted, gan_loss = model.get_loss(
+            reconstruction_loss, regularisation_loss, cone_loss, gan_loss_original, gan_loss_predicted, gan_loss_generator, gan_loss = model.get_loss(
                 x, reconstructed_x, mus, log_variances, z, real_discriminator_preds, fake_discriminator_preds
             )
 
@@ -43,7 +43,7 @@ def training_loop(data_loader,
             # print()
 
             encoder_loss = reconstruction_loss + lambda_regularisation_loss * regularisation_loss + lambda_cone_loss * cone_loss
-            decoder_loss = reconstruction_loss + lambda_gan_loss * gan_loss_predicted
+            decoder_loss = reconstruction_loss + lambda_gan_loss * gan_loss_generator
             discriminator_loss = gan_loss
 
             # Clear Gradients
@@ -85,6 +85,7 @@ def training_loop(data_loader,
             # old_param_list_decoder = copy.deepcopy(list(model.decoder.parameters()))
             # old_param_list_discriminator = copy.deepcopy(list(model.discriminator.parameters()))
 
+            # TODO: Train discriminator in separate step. 
             discriminator_loss.backward()
             optimizer_discriminator.step()
 
